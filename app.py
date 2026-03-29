@@ -32,10 +32,7 @@ log = logging.getLogger("pipelinexr-llm")
 # ── Model config ──────────────────────────────────────────────────────────────
 MODEL_ID   = os.getenv("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 MAX_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "1024"))
-DEVICE     = "cuda" if (
-    torch.cuda.is_available() and
-    torch.cuda.get_device_properties(0).total_memory > 4_000_000_000
-) else "cpu"
+DEVICE     = "cpu"  # Force CPU to avoid GPU memory issues
 API_SECRET = os.getenv("API_SECRET", "")   # optional bearer token guard
 
 log.info(f"Device: {DEVICE} | Model: {MODEL_ID}")
@@ -56,6 +53,9 @@ def load_model():
         bnb_4bit_quant_type="nf4",
     ) if DEVICE == "cuda" else None
 
+    if DEVICE == "cpu":
+        os.makedirs("/tmp/model_offload", exist_ok=True)
+
     log.info("Loading model (4-bit quant on GPU, fp32 on CPU)…")
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID,
@@ -63,6 +63,8 @@ def load_model():
         device_map="auto" if DEVICE == "cuda" else None,
         torch_dtype=torch.float16 if DEVICE == "cuda" else torch.float32,
         trust_remote_code=True,
+        low_cpu_mem_usage=True,
+        offload_folder="/tmp/model_offload" if DEVICE == "cpu" else None,
     )
     model.eval()
 
