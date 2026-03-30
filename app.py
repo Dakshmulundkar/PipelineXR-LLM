@@ -30,7 +30,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("pipelinexr-llm")
 
 # ── Model config ──────────────────────────────────────────────────────────────
-MODEL_ID   = os.getenv("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
+MODEL_ID   = os.getenv("MODEL_ID", "Qwen/Qwen2.5-1.5B-Instruct")
 MAX_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "1024"))
 DEVICE     = "cpu"  # Force CPU to avoid GPU memory issues
 API_SECRET = os.getenv("API_SECRET", "")   # optional bearer token guard
