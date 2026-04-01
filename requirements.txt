@@ -1,5 +1,5 @@
 fastapi>=0.111.0
 uvicorn[standard]>=0.29.0
-llama-cpp-python>=0.2.90
+llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 huggingface_hub>=0.23.0
 pydantic>=2.0.0
