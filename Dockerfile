@@ -1,16 +1,19 @@
 FROM python:3.11-slim
 
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY requirements.txt .
 
-# Install base deps
-RUN pip install --no-cache-dir -r requirements.txt
+# Install base deps first
+RUN pip install --no-cache-dir fastapi "uvicorn[standard]" huggingface_hub pydantic
 
-# Install pre-built llama-cpp-python CPU wheel directly (no compilation)
-RUN pip install --no-cache-dir \
-    "llama-cpp-python==0.3.2" \
-    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+# Compile llama-cpp-python with limited parallelism to avoid OOM during build
+RUN CMAKE_ARGS="-DLLAMA_BLAS=OFF" MAKEFLAGS="-j1" pip install --no-cache-dir llama-cpp-python
 
 COPY app.py .
 
