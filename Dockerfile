@@ -7,16 +7,16 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY requirements.txt .
-
-# Install base deps first
-RUN pip install --no-cache-dir fastapi "uvicorn[standard]" huggingface_hub pydantic
-
-# Compile llama-cpp-python with limited parallelism to avoid OOM during build
-RUN CMAKE_ARGS="-DLLAMA_BLAS=OFF" MAKEFLAGS="-j1" pip install --no-cache-dir llama-cpp-python
+# Install everything except llama-cpp-python at build time
+RUN pip install --no-cache-dir \
+    fastapi \
+    "uvicorn[standard]" \
+    huggingface_hub \
+    pydantic
 
 COPY app.py .
 
 EXPOSE 7860
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
+# Install llama-cpp-python at runtime (full 16GB available, no build OOM)
+CMD ["sh", "-c", "CMAKE_ARGS='-DLLAMA_BLAS=OFF' MAKEFLAGS='-j1' pip install --no-cache-dir llama-cpp-python && uvicorn app:app --host 0.0.0.0 --port 7860"]
