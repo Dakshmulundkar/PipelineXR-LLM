@@ -7,16 +7,20 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install everything except llama-cpp-python at build time
+# Install llama-cpp-python at BUILD time — eliminates the 4-min compile on every cold start.
+# MAKEFLAGS=-j$(nproc) uses all available build cores.
+RUN CMAKE_ARGS="-DLLAMA_BLAS=OFF" MAKEFLAGS="-j$(nproc)" \
+    pip install --no-cache-dir llama-cpp-python==0.3.20
+
+# Install remaining dependencies
 RUN pip install --no-cache-dir \
     fastapi \
     "uvicorn[standard]" \
-    huggingface_hub \
+    "huggingface_hub>=0.23.0" \
     pydantic
 
 COPY app.py .
 
 EXPOSE 7860
 
-# Install llama-cpp-python at runtime (full 16GB available, no build OOM)
-CMD ["sh", "-c", "CMAKE_ARGS='-DLLAMA_BLAS=OFF' MAKEFLAGS='-j1' pip install --no-cache-dir llama-cpp-python && uvicorn app:app --host 0.0.0.0 --port 7860"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
