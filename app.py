@@ -224,6 +224,11 @@ def extract_json(text: str) -> str:
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "PipelineXR LLM", "model": GGUF_FILE}
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "model": GGUF_FILE, "device": "cpu"}
