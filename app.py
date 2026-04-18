@@ -19,8 +19,8 @@ from llama_cpp import Llama
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("pipelinexr-llm")
 
-REPO_ID    = os.getenv("MODEL_REPO", "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF")
-GGUF_FILE  = os.getenv("MODEL_FILE", "qwen2.5-coder-7b-instruct-q2_k.gguf")
+REPO_ID    = os.getenv("MODEL_REPO", "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF")
+GGUF_FILE  = os.getenv("MODEL_FILE", "qwen2.5-coder-1.5b-instruct-q4_k_m.gguf")
 MAX_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "512"))
 CTX_SIZE   = int(os.getenv("CTX_SIZE", "8192"))
 API_SECRET = os.getenv("API_SECRET", "")
