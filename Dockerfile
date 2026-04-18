@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install everything except llama-cpp-python at build time
+ENV HF_HOME=/app/.cache
+
 RUN pip install --no-cache-dir \
     fastapi \
     "uvicorn[standard]" \
@@ -18,5 +19,5 @@ COPY app.py .
 
 EXPOSE 7860
 
-# Install llama-cpp-python at runtime (full 16GB RAM available, avoids build OOM/timeout)
+# Install llama-cpp-python at runtime (avoids build OOM/timeout)
 CMD ["sh", "-c", "CMAKE_ARGS='-DLLAMA_BLAS=OFF' MAKEFLAGS='-j1' pip install --no-cache-dir llama-cpp-python==0.3.20 && uvicorn app:app --host 0.0.0.0 --port 7860"]
